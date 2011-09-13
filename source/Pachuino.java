@@ -26,8 +26,8 @@ public class Pachuino extends Thread {
 
 	private static final String FEED_URL = "http://www.pachube.com/api/";
 
-	private static final int REMOTE_REFRESH_RATE = 5000;
-	private static final int POST_RATE = 5000;
+	private int remoteRefreshRate = 5000;
+	private int postRate = 12000;  // modified to avoid Rate Limit problems
 
 	private static PApplet pApplet;
 
@@ -160,7 +160,7 @@ public class Pachuino extends Thread {
 
 		if (notAdded){
 			thisFeed = totalFeeds;
-			dIn[thisFeed] = new DataIn(pApplet, FEED_URL + feedNumber + ".xml",pachubeAuthenticationKey, REMOTE_REFRESH_RATE);
+			dIn[thisFeed] = new DataIn(pApplet, FEED_URL + feedNumber + ".xml",pachubeAuthenticationKey, remoteRefreshRate);
 			remoteFeed[thisFeed] = feedNumber;  
 			totalFeeds++;            
 		}
@@ -183,7 +183,7 @@ public class Pachuino extends Thread {
 
 		if (notAdded){
 			thisFeed = totalFeeds;
-			dIn[thisFeed] = new DataIn(pApplet, FEED_URL + feedNumber + ".xml", pachubeAuthenticationKey, REMOTE_REFRESH_RATE);
+			dIn[thisFeed] = new DataIn(pApplet, FEED_URL + feedNumber + ".xml", pachubeAuthenticationKey, remoteRefreshRate);
 			remoteFeed[thisFeed] = feedNumber;  
 			totalFeeds++;            
 		}
@@ -336,7 +336,7 @@ public class Pachuino extends Thread {
 		try {
 			postThread = new Thread(this);
 			postThread.start();   
-			System.out.println("Pachuino POST enabled, to: " + pachubePOSTurl + ", updating every " + POST_RATE + " milliseconds");
+			System.out.println("Pachuino POST enabled, to: " + pachubePOSTurl + ", updating every " + postRate + " milliseconds");
 			System.out.println("Using API key: " + pachubeAuthenticationKey);
 		}
 		catch (Exception e) {
@@ -344,6 +344,19 @@ public class Pachuino extends Thread {
 		}
 	}
 
+	
+	
+	// allowing manual setting of remote sensor refresh rate in ms
+	public void setRemoteRefreshRate(int i){    
+		remoteRefreshRate = i;
+	}
+
+	
+	// allowing manual setting of Post Rate in ms
+	public void setPostRate(int i){    
+		postRate = i;
+	}
+	
 	public void setKey(String s){    
 		pachubeAuthenticationKey=s;
 		if (!pachubePOSTurl.equals("")){
@@ -426,7 +439,7 @@ public class Pachuino extends Thread {
 				}
 
 				try {
-					sleep(POST_RATE);
+					sleep(postRate);
 				}
 				catch (Exception e) {
 					System.err.println("DataOut: There was a problem sleeping.");
